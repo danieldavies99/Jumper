@@ -17,6 +17,7 @@
 #include "Square.hpp"
 #include "soloud/soloud.h"
 #include "soloud/soloud_wav.h"
+#include "soloud/soloud_biquadresonantfilter.h"
 
 #undef main
 
@@ -25,8 +26,8 @@ using namespace dcd;
 
 
 int main(){
-    
-     SDL_Color textColor = { 255, 255, 255 };
+
+    SDL_Color textColor = { 255, 255, 255 };
     
     enum directions
     {
@@ -44,10 +45,19 @@ int main(){
     SoLoud::Wav g_JumpSound;      // One wave file
     SoLoud::Wav g_MusicSound;      // One wave file
 
+    SoLoud::BiquadResonantFilter gBQRFilter;
+
+    gBQRFilter.setParams(SoLoud::BiquadResonantFilter::LOWPASS, 21000, 2); 
+
+    g_MusicSound.setFilter(SoLoud::BiquadResonantFilter::LOWPASS, &gBQRFilter);
+    
     g_Soloud.init();
     
     g_JumpSound.load("jump.wav");
     g_MusicSound.load("rythm.wav");
+
+    int h = g_Soloud.play(g_MusicSound,0.30);
+    g_Soloud.setLooping(h, true);
 
     Screen screen;
     
@@ -99,8 +109,6 @@ int main(){
     Square player((screen.getWidth()/2) - (g_PlayerTexture.getWidth()/2), GROUND, g_PlayerTexture);
     Square enemy(screen.getWidth(), GROUND, g_EnemyTexture);
     
-    int h = g_Soloud.play(g_MusicSound,0.30);
-    g_Soloud.setLooping(h, true);
 
     //game loop
     while(quit == false){
@@ -128,6 +136,13 @@ int main(){
                 g_Soloud.play(g_JumpSound);
                 start = true;
                 score = 0;
+                
+                g_Soloud.fadeFilterParameter(
+                h, // Sound handle
+                0,            // First filter
+                SoLoud::BiquadResonantFilter::FREQUENCY, // What to adjust
+                21000,         // Target value
+                1); // Time in seconds
             }
             else if( (state[SDL_SCANCODE_SPACE] && !pJumping && released) || (state[SDL_SCANCODE_UP] && !pJumping  && released)){
                 //pressed
@@ -239,6 +254,13 @@ int main(){
         //collisions
         if(player.colliding(enemy, true, true)){
             defeat = true;
+
+            g_Soloud.fadeFilterParameter(
+            h, // Sound handle
+            0,            // First filter
+            SoLoud::BiquadResonantFilter::FREQUENCY, // What to adjust
+            400,         // Target value
+            0.5); // Time in seconds
         }
     
         if(player.colliding(enemy, false, true) && !pointGiven && !defeat){
@@ -284,8 +306,6 @@ int main(){
         dcd::g_VignetteTexture.render( 0, 0, NULL, 0, 0, SDL_FLIP_NONE );
         
         
-        
-        
         //Update screen
         SDL_RenderPresent( dcd::g_Renderer );
         
@@ -295,7 +315,8 @@ int main(){
         
     }
     
-    
+    g_Soloud.fadeGlobalVolume(0, 1);
+
     g_Soloud.deinit();
     screen.close();
     
