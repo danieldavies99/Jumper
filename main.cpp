@@ -5,6 +5,8 @@
 //  Created by Daniel Davies on 17/02/2020.
 //  Copyright © 2020 Daniel Davies. All rights reserved.
 //
+//
+// Idk how git works lmaoooooooooo
 
 #include <time.h>
 #include <iostream>
