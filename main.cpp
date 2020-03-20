@@ -56,7 +56,7 @@ int main(){
     g_JumpSound.load("jump.wav");
     g_MusicSound.load("rythm.wav");
 
-    int h = g_Soloud.play(g_MusicSound,0.30);
+    int h = g_Soloud.play(g_MusicSound,0.5);
     g_Soloud.setLooping(h, true);
 
     Screen screen;
@@ -260,7 +260,8 @@ int main(){
             0,            // First filter
             SoLoud::BiquadResonantFilter::FREQUENCY, // What to adjust
             400,         // Target value
-            0.5); // Time in seconds
+            1); // Time in seconds
+
         }
     
         if(player.colliding(enemy, false, true) && !pointGiven && !defeat){
@@ -314,8 +315,6 @@ int main(){
         
         
     }
-    
-    g_Soloud.fadeGlobalVolume(0, 1);
 
     g_Soloud.deinit();
     screen.close();
