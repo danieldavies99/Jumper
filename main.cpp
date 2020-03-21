@@ -141,6 +141,7 @@ int main(){
                 SoLoud::BiquadResonantFilter::FREQUENCY, // What to adjust
                 21000,         // Target value
                 1); // Time in seconds
+                player.jump(GROUND, interval);
             }
             else if( (state[SDL_SCANCODE_SPACE] && !pJumping && released) || (state[SDL_SCANCODE_UP] && !pJumping  && released)){
                 //pressed
@@ -148,16 +149,13 @@ int main(){
                 pJumping = true;
                 start = true;
                 released = false;
+                player.jump(GROUND, interval);
             }
             else if( !state[SDL_SCANCODE_SPACE] && !released){
                 //released
                 released = true;
 
             }
-            if(pJumping){
-                player.jump(GROUND, interval);
-            }
-            
             
         }
         
@@ -245,9 +243,11 @@ int main(){
             
         }
         
-        /* AutoRun
+        /*//AutoRun
         if(!jumper && player.nearby(enemy, jumpDistance) && !pJumping){
             pJumping = true;
+            g_Soloud.play(g_JumpSound);
+            player.jump(GROUND, interval);
         }
         */
         
