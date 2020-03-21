@@ -67,31 +67,31 @@ bool Screen::loadMedia(){
     bool success = true;
     
     //Load Player texture
-    if( !g_PlayerTexture.loadFromFile( "player.png" ) )
+    if( !g_PlayerTexture.loadFromFile( "Assets/player.png" ) )
     {
         printf( "Failed to load player texture image!\n" );
         success = false;
     }
     //Load Enemy texture
-    if( !g_EnemyTexture.loadFromFile( "enemy.png" ) )
+    if( !g_EnemyTexture.loadFromFile( "Assets/enemy.png" ) )
     {
         printf( "Failed to load enemy texture image!\n" );
         success = false;
     }
     //load jumper texture
-    if( !g_JumperEnemyTexture.loadFromFile( "jumper.png" ) )
+    if( !g_JumperEnemyTexture.loadFromFile( "Assets/jumper.png" ) )
     {
         printf( "Failed to load enemy texture image!\n" );
         success = false;
     }
     //Load background texture
-    if( !g_BackgroundTexture.loadFromFile( "background.png" ) )
+    if( !g_BackgroundTexture.loadFromFile( "Assets/background.png" ) )
     {
         printf( "Failed to load background texture image!\n" );
         success = false;
     }
     //Load vignette texture
-    if( !g_VignetteTexture.loadFromFile( "vignette.png" ) )
+    if( !g_VignetteTexture.loadFromFile( "Assets/vignette.png" ) )
     {
         printf( "Failed to load background texture image!\n" );
         success = false;
@@ -104,7 +104,7 @@ bool Screen::loadMedia(){
     }
     
     //Open the font
-    g_Font = TTF_OpenFont( "Bebas-Regular.ttf", 65 );
+    g_Font = TTF_OpenFont( "Assets/Bebas-Regular.ttf", 65 );
     if( g_Font == NULL )
     {
         printf( "Failed to load Bebas-Regular.tf! SDL_ttf Error: %s\n", TTF_GetError() );

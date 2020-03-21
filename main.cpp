@@ -52,8 +52,8 @@ int main(){
     
     g_Soloud.init();
     
-    g_JumpSound.load("jump.wav");
-    g_MusicSound.load("rythm.wav");
+    g_JumpSound.load("Assets/jump.wav");
+    g_MusicSound.load("Assets/rythm.wav");
 
     int h = g_Soloud.play(g_MusicSound,0.5);
     g_Soloud.setLooping(h, true);
@@ -280,8 +280,9 @@ int main(){
                 pointGiven = true;
             }
 
+            //render
             last_game_step = now;
-            
+
             //Clear screen
             SDL_SetRenderDrawColor( dcd::g_Renderer, 0xFF, 0xFF, 0xFF, 0xFF );
             SDL_RenderClear( dcd::g_Renderer );
@@ -322,15 +323,11 @@ int main(){
             //Update screen
             SDL_RenderPresent( dcd::g_Renderer );
 
-            /*
-            //massively reduces cpu usage as no longer refreshing as fast as possible
-            SDL_Delay(3);
-            */
-
         }
         else{
             if(true){
-                SDL_Delay(1);
+                //reduces cpu usage
+                SDL_Delay(5);
             }
         }
 
