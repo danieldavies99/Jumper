@@ -46,7 +46,7 @@ int main(){
 
     SoLoud::BiquadResonantFilter gBQRFilter;
 
-    gBQRFilter.setParams(SoLoud::BiquadResonantFilter::LOWPASS, 21000, 2); 
+    gBQRFilter.setParams(SoLoud::BiquadResonantFilter::LOWPASS, 500, 2); 
 
     g_MusicSound.setFilter(SoLoud::BiquadResonantFilter::LOWPASS, &gBQRFilter);
     
@@ -132,10 +132,9 @@ int main(){
             
             //player jumping
             if( (state[SDL_SCANCODE_SPACE] && !start) || (state[SDL_SCANCODE_UP] && !start)){
-                g_Soloud.play(g_JumpSound);
                 start = true;
                 score = 0;
-                
+                g_Soloud.play(g_JumpSound);
                 g_Soloud.fadeFilterParameter(
                 h, // Sound handle
                 0,            // First filter
@@ -156,7 +155,7 @@ int main(){
 
             }
             if(pJumping){
-              player.jump(GROUND, interval);
+                player.jump(GROUND, interval);
             }
             
             
@@ -187,8 +186,8 @@ int main(){
             }
     
             
-            //create random delay between spawns. is dependadt on computer speed, needs fix
-            if(rand() % 100  == 0){
+            //create random delay between spawns. is dependant on computer speed, needs fix
+            if(rand() % 50  == 0){
                 pointGiven = false;
                 
                 enemySpeed = ( (enemyBaseSpeed  + (rand() % 25))/100.0);
@@ -232,6 +231,7 @@ int main(){
             if( player.nearby(enemy, jumpDistance) && !eJumping && !jumped) {
                 eJumping = true;
                 g_Soloud.play(g_JumpSound);
+                enemy.jump(GROUND, interval);
             }
             
             if(eJumping){
@@ -309,7 +309,7 @@ int main(){
         //Update screen
         SDL_RenderPresent( dcd::g_Renderer );
 
-        //massively reduces cpu usage as no longer refrehsing as fast as possible
+        //massively reduces cpu usage as no longer refreshing as fast as possible
         SDL_Delay(3);
 
         interval = elapsed - lastTime;

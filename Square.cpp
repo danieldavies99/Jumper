@@ -32,7 +32,7 @@ void Square::setTexture(LTexture &texture){
 
 void Square::jump(int ground, int interval){
     
-    m_YVelocity += ( m_InitialJumpVelocity - ( m_Gravity*((m_JTime * m_JTime)/2) ) )*interval;
+    m_YVelocity += ( m_InitialJumpVelocity - ( m_Gravity*((m_JTime * m_JTime)/2.0) ) )*interval;
 
     m_Y = ground - m_YVelocity;
     
