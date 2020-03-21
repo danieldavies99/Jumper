@@ -86,10 +86,11 @@ int main(){
     bool released = true;
    
     //time variables
-    int interval = 0;
-    int lastTime = 0;
-    int elapsed = 0;
-    
+    Uint32 interval;
+
+    Uint32 minimum_fps_delta_time = (1000/6); // minimum 6 fps, if the computer is slower than this: slow down.
+    Uint32 last_game_step = SDL_GetTicks(); // initial value
+    Uint32 now;
     
     //enemy variables
     double enemySpeed = 0.4;
@@ -111,210 +112,229 @@ int main(){
 
     //game loop
     while(quit == false){
-        
-        //determines difficulty ramp and max difficulty
-        if(enemyBaseSpeed <= 80){
-            enemyBaseSpeed = 30 + ((score - 1)/2);
-        }
-        
-        elapsed = SDL_GetTicks();
-        const Uint8 *state = SDL_GetKeyboardState(NULL);
-        
-        //Handle events on queue, put full screen, pause, sound on/off here
 
-        while( SDL_PollEvent( &event ) != 0 )
-        {
-            //User requests quit
-            if( event.type == SDL_QUIT )
-            {
-                quit = true;
+        now = SDL_GetTicks();
+
+        if(last_game_step < now){
+
+            interval = now - last_game_step;
+
+            if( interval > minimum_fps_delta_time ){
+                interval = minimum_fps_delta_time; // slow down if the computer is too slow
+            }
+
+            //determines difficulty ramp and max difficulty
+            if(enemyBaseSpeed <= 80){
+                enemyBaseSpeed = 30 + ((score - 1)/2);
             }
             
-            //player jumping
-            if( (state[SDL_SCANCODE_SPACE] && !start) || (state[SDL_SCANCODE_UP] && !start)){
-                start = true;
-                score = 0;
+            const Uint8 *state = SDL_GetKeyboardState(NULL);
+            
+            //Handle events on queue, put full screen, pause, sound on/off here
+
+            while( SDL_PollEvent( &event ) != 0 )
+            {
+                //User requests quit
+                if( event.type == SDL_QUIT )
+                {
+                    quit = true;
+                }
+                
+                //player jumping
+                if( (state[SDL_SCANCODE_SPACE] && !start && !pJumping) || (state[SDL_SCANCODE_UP] && !start && !pJumping)){
+                    start = true;
+                    score = 0;
+                    g_Soloud.play(g_JumpSound);
+                    pJumping = true;
+                    g_Soloud.fadeFilterParameter(
+                    h, // Sound handle
+                    0,            // First filter
+                    SoLoud::BiquadResonantFilter::FREQUENCY, // What to adjust
+                    21000,         // Target value
+                    1); // Time in seconds
+                }
+                else if( (state[SDL_SCANCODE_SPACE] && !pJumping && released) || (state[SDL_SCANCODE_UP] && !pJumping  && released)){
+                    //pressed
+                    g_Soloud.play(g_JumpSound);
+                    pJumping = true;
+                    start = true;
+                    released = false;
+                }
+                else if( !state[SDL_SCANCODE_SPACE] && !released){
+                    //released
+                    released = true;
+
+                }
+                if(pJumping){
+                player.jump(GROUND, interval);
+                }
+            }
+            
+            if(pJumping){
+                player.jump(GROUND, interval);
+            }
+            
+            if(player.getY() == GROUND){
+                pJumping = false;
+            }
+    
+            
+            
+            //enemy spawn check
+            if(!enemy.spawned() && start){
+                
+                //determine enemy type
+                if(score > 5 && rand() % 3 == 0){
+                    jumper = true;
+                    enemy.setTexture(g_PlayerTexture);
+                }
+                
+                else{
+                    jumper = false;
+                    enemy.setTexture(g_EnemyTexture);
+                }
+        
+                
+                //create random delay between spawns. is dependant on computer speed, needs fix
+                if(rand() % 50  == 0){
+                    pointGiven = false;
+                    
+                    enemySpeed = ( (enemyBaseSpeed  + (rand() % 25))/100.0);
+                    
+                    jumpDistance = enemySpeed*100 + 50;
+                    
+                    right = (rand() % 2) == 1;
+                    
+                    if(right){
+                        enemy.setPos(screen.getWidth(), GROUND);
+                    }
+                    
+                    else{
+                        enemy.setPos(0 - g_EnemyTexture.getWidth(), GROUND);
+                    }
+                }
+            }
+            
+            //enemy movement
+            else if(start){
+                if(right){
+                    enemy.move(enemySpeed, LEFT, interval);
+                }
+        
+                if(!right){
+                    enemy.move(enemySpeed, RIGHT, interval);
+                }
+            }
+            
+            
+            //enemy jumping
+            if ( (right && enemy.getX() < SCREEN_WIDTH/2) || (!right && enemy.getX() > SCREEN_WIDTH/2) ){
+                jumped = true;
+            }
+            else{
+                jumped = false;
+            }
+            
+            
+            if(jumper){
+                if( player.nearby(enemy, jumpDistance) && !eJumping && !jumped) {
+                    eJumping = true;
+                    g_Soloud.play(g_JumpSound);
+                    enemy.jump(GROUND, interval);
+                }
+                
+                if(eJumping){
+                    enemy.jump(GROUND, interval);
+                    
+                }
+                
+                if(enemy.getY() == GROUND){
+                    eJumping = false;
+                }
+                
+            }
+            
+            /*//AutoRun
+            if(!jumper && player.nearby(enemy, jumpDistance) && !pJumping){
+                pJumping = true;
                 g_Soloud.play(g_JumpSound);
+                player.jump(GROUND, interval);
+            }
+            */
+            
+            //collisions
+            if(player.colliding(enemy, true, true)){
+                defeat = true;
+
                 g_Soloud.fadeFilterParameter(
                 h, // Sound handle
                 0,            // First filter
                 SoLoud::BiquadResonantFilter::FREQUENCY, // What to adjust
-                21000,         // Target value
+                400,         // Target value
                 1); // Time in seconds
-                player.jump(GROUND, interval);
-            }
-            else if( (state[SDL_SCANCODE_SPACE] && !pJumping && released) || (state[SDL_SCANCODE_UP] && !pJumping  && released)){
-                //pressed
-                g_Soloud.play(g_JumpSound);
-                pJumping = true;
-                start = true;
-                released = false;
-                player.jump(GROUND, interval);
-            }
-            else if( !state[SDL_SCANCODE_SPACE] && !released){
-                //released
-                released = true;
 
             }
+        
+            if(player.colliding(enemy, false, true) && !pointGiven && !defeat){
+                score++;
+                pointGiven = true;
+            }
+
+            last_game_step = now;
             
-        }
-        
-        if(pJumping){
-            player.jump(GROUND, interval);
-        }
-        
-        if(player.getY() == GROUND){
-            pJumping = false;
-        }
-  
-        
-        
-        //enemy spawn check
-        if(!enemy.spawned() && start){
+            //Clear screen
+            SDL_SetRenderDrawColor( dcd::g_Renderer, 0xFF, 0xFF, 0xFF, 0xFF );
+            SDL_RenderClear( dcd::g_Renderer );
             
-            //determine enemy type
-            if(score > 5 && rand() % 3 == 0){
-                jumper = true;
-                enemy.setTexture(g_PlayerTexture);
+            //Render background texture to screen
+            dcd::g_BackgroundTexture.render( 0, 0, NULL, 0, 0, SDL_FLIP_NONE );
+            
+            //Render Enemy to the screen
+            if(enemy.spawned() == true){
+                enemy.render();
             }
             
-            else{
-                jumper = false;
-                enemy.setTexture(g_EnemyTexture);
-            }
-    
-            
-            //create random delay between spawns. is dependant on computer speed, needs fix
-            if(rand() % 50  == 0){
-                pointGiven = false;
-                
-                enemySpeed = ( (enemyBaseSpeed  + (rand() % 25))/100.0);
-                
-                jumpDistance = enemySpeed*100 + 50;
-                
-                right = (rand() % 2) == 1;
-                
-                if(right){
-                    enemy.setPos(screen.getWidth(), GROUND);
-                }
-                
-                else{
-                    enemy.setPos(0 - g_EnemyTexture.getWidth(), GROUND);
+            //Render Player to the screen
+            if(!defeat){
+                player.render();
+                if(!start){
+                    dcd::g_TextTexture.render((screen.getWidth()/2) - (g_TextTexture.getWidth()/2), 90, NULL, 0, 0, SDL_FLIP_NONE);
                 }
             }
-        }
-        
-        //enemy movement
-        else if(start){
-            if(right){
-                enemy.move(enemySpeed, LEFT, interval);
+            
+            else if(defeat && !enemy.spawned()){
+                player.render();
+                defeat = false;
+                start = false;
             }
-    
-            if(!right){
-                enemy.move(enemySpeed, RIGHT, interval);
-            }
-        }
-        
-        
-        //enemy jumping
-        if ( (right && enemy.getX() < SCREEN_WIDTH/2) || (!right && enemy.getX() > SCREEN_WIDTH/2) ){
-            jumped = true;
+            
+            
+            //update score
+            ScoreStream.str("");
+            ScoreStream << (score);
+            dcd::g_ScoreTexture.loadFromRenderedText( ScoreStream.str(), g_Font, textColor );
+            //render score
+            dcd::g_ScoreTexture.render((screen.getWidth()/2) - (g_ScoreTexture.getWidth()/2), 300, NULL, 0, 0, SDL_FLIP_NONE );
+            //render vignette
+            dcd::g_VignetteTexture.render( 0, 0, NULL, 0, 0, SDL_FLIP_NONE );
+            
+            
+            //Update screen
+            SDL_RenderPresent( dcd::g_Renderer );
+
+            /*
+            //massively reduces cpu usage as no longer refreshing as fast as possible
+            SDL_Delay(3);
+            */
+
         }
         else{
-            jumped = false;
-        }
-        
-        
-        if(jumper){
-            if( player.nearby(enemy, jumpDistance) && !eJumping && !jumped) {
-                eJumping = true;
-                g_Soloud.play(g_JumpSound);
-                enemy.jump(GROUND, interval);
-            }
-            
-            if(eJumping){
-                enemy.jump(GROUND, interval);
-                
-            }
-            
-            if(enemy.getY() == GROUND){
-                eJumping = false;
-            }
-            
-        }
-        
-        /*//AutoRun
-        if(!jumper && player.nearby(enemy, jumpDistance) && !pJumping){
-            pJumping = true;
-            g_Soloud.play(g_JumpSound);
-            player.jump(GROUND, interval);
-        }
-        */
-        
-        //collisions
-        if(player.colliding(enemy, true, true)){
-            defeat = true;
-
-            g_Soloud.fadeFilterParameter(
-            h, // Sound handle
-            0,            // First filter
-            SoLoud::BiquadResonantFilter::FREQUENCY, // What to adjust
-            400,         // Target value
-            1); // Time in seconds
-
-        }
-    
-        if(player.colliding(enemy, false, true) && !pointGiven && !defeat){
-            score++;
-            pointGiven = true;
-        }
-        
-        //Clear screen
-        SDL_SetRenderDrawColor( dcd::g_Renderer, 0xFF, 0xFF, 0xFF, 0xFF );
-        SDL_RenderClear( dcd::g_Renderer );
-        
-        //Render background texture to screen
-        dcd::g_BackgroundTexture.render( 0, 0, NULL, 0, 0, SDL_FLIP_NONE );
-        
-        //Render Enemy to the screen
-        if(enemy.spawned() == true){
-            enemy.render();
-        }
-        
-        //Render Player to the screen
-        if(!defeat){
-            player.render();
-            if(!start){
-                dcd::g_TextTexture.render((screen.getWidth()/2) - (g_TextTexture.getWidth()/2), 90, NULL, 0, 0, SDL_FLIP_NONE);
+            if(true){
+                SDL_Delay(1);
             }
         }
-        
-        else if(defeat && !enemy.spawned()){
-            player.render();
-            defeat = false;
-            start = false;
-        }
-        
-        
-        //update score
-        ScoreStream.str("");
-        ScoreStream << (score);
-        dcd::g_ScoreTexture.loadFromRenderedText( ScoreStream.str(), g_Font, textColor );
-        //render score
-        dcd::g_ScoreTexture.render((screen.getWidth()/2) - (g_ScoreTexture.getWidth()/2), 300, NULL, 0, 0, SDL_FLIP_NONE );
-        //render vignette
-        dcd::g_VignetteTexture.render( 0, 0, NULL, 0, 0, SDL_FLIP_NONE );
-        
-        
-        //Update screen
-        SDL_RenderPresent( dcd::g_Renderer );
 
-        //massively reduces cpu usage as no longer refreshing as fast as possible
-        SDL_Delay(3);
 
-        interval = elapsed - lastTime;
-        lastTime = elapsed;
-        
     }
 
     g_Soloud.deinit();
