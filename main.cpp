@@ -121,7 +121,7 @@ int main(){
         const Uint8 *state = SDL_GetKeyboardState(NULL);
         
         //Handle events on queue, put full screen, pause, sound on/off here
-        
+
         while( SDL_PollEvent( &event ) != 0 )
         {
             //User requests quit
@@ -158,6 +158,7 @@ int main(){
             if(pJumping){
               player.jump(GROUND, interval);
             }
+            
             
         }
         
@@ -307,10 +308,12 @@ int main(){
         
         //Update screen
         SDL_RenderPresent( dcd::g_Renderer );
-        
+
+        //massively reduces cpu usage as no longer refrehsing as fast as possible
+        SDL_Delay(3);
+
         interval = elapsed - lastTime;
         lastTime = elapsed;
-        
         
     }
 

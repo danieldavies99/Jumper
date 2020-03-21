@@ -55,7 +55,7 @@ bool Screen::init(){
         SDL_Quit();
         return false;
     }
-    
+
     return true;
     
 }
