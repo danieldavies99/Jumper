@@ -298,7 +298,6 @@ int main(){
         //update score
         ScoreStream.str("");
         ScoreStream << (score);
-        screen.fontSize(g_Font, 20);
         dcd::g_ScoreTexture.loadFromRenderedText( ScoreStream.str(), g_Font, textColor );
         //render score
         dcd::g_ScoreTexture.render((screen.getWidth()/2) - (g_ScoreTexture.getWidth()/2), 300, NULL, 0, 0, SDL_FLIP_NONE );

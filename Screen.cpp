@@ -134,10 +134,6 @@ bool Screen::loadMedia(){
     
 }
     
-void Screen::fontSize(TTF_Font *font, int size){
-    font = TTF_OpenFont( "Bebas-Regular.ttf", size);
-}
-    
 int Screen::getHeight(){
     return SCREEN_HEIGHT;
 }
@@ -149,7 +145,8 @@ void Screen::close(){
     
     //Free loaded images
     dcd::g_TextTexture.free();
-    
+    dcd::g_ScoreTexture.free();
+
     //Free global font
     TTF_CloseFont( g_Font );
     g_Font = NULL;

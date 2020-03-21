@@ -33,8 +33,6 @@ public:
     int getWidth();
     void addScore();
     
-    void fontSize(TTF_Font *font, int size);
-    
 };
 
 }
