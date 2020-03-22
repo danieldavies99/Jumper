@@ -22,8 +22,8 @@ private:
     //jump variables
     int m_JTime;
     double m_YVelocity;
-    double m_InitialJumpVelocity;
-    double m_Gravity;
+    constexpr static double m_InitialJumpVelocity = 0.35;
+    constexpr static double m_Gravity = 0.00011;
     
     //texture to be rendered
     LTexture *m_Texture;

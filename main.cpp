@@ -4,6 +4,13 @@
 //
 //  Created by Daniel Davies on 17/02/2020.
 //  Copyright © 2020 Daniel Davies. All rights reserved.
+//
+//
+// TODO:
+// 1 - fix jump function
+// 2 - move audio functions to their own class
+// 3 - implement high score 
+//
 
 #include <time.h>
 #include <iostream>

@@ -18,8 +18,7 @@ enum directions
     RIGHT,
 };
 
-Square::Square(double x, double y, LTexture &texture): m_X(x), m_Y(y), m_JTime(1), m_YVelocity(0), m_InitialJumpVelocity(0.46), m_Gravity(0.000015){
-    //m_InitialJumpVelocity(0.46), m_Gravity(0.000015)
+Square::Square(double x, double y, LTexture &texture): m_X(x), m_Y(y), m_JTime(1), m_YVelocity(0){
 
     m_Texture = &texture;
 
@@ -34,13 +33,17 @@ void Square::setTexture(LTexture &texture){
 }
 
 void Square::jump(int ground, int interval){
-    
-    m_YVelocity += ( m_InitialJumpVelocity - (m_Gravity*((m_JTime * m_JTime)/2.0) ))  * interval;
 
-    m_Y = ground - (m_YVelocity);
-    
+    if(m_Y >= ground){
+        m_YVelocity = 0;
+    }
 
     m_JTime += interval;
+
+    //this function needs fixing, atm deltatime is not working properly
+    m_YVelocity += ( -m_InitialJumpVelocity*interval + (m_Gravity*((m_JTime * m_JTime)/2.0) ));
+
+    m_Y = ground + (m_YVelocity);
     
     if(m_Y >= ground){
         m_Y = ground;
