@@ -33,19 +33,16 @@ void Square::setTexture(LTexture &texture){
 }
 
 void Square::jump(int ground, int interval){
-
-    if(m_Y >= ground){
-        m_YVelocity = 0;
-    }
-
+    
     m_JTime += interval;
 
     //this function needs fixing, atm deltatime is not working properly
     m_YVelocity += ( -m_InitialJumpVelocity*interval + (m_Gravity*((m_JTime * m_JTime)/2.0) ));
 
     m_Y = ground + (m_YVelocity);
-    
+
     if(m_Y >= ground){
+        m_YVelocity = 0;
         m_Y = ground;
         m_JTime = 1;
     }

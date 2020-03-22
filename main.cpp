@@ -148,11 +148,13 @@ int main(){
                 }
                 
                 //player jumping
-                if( (state[SDL_SCANCODE_SPACE] && !start && !pJumping) || (state[SDL_SCANCODE_UP] && !start && !pJumping)){
+                if( (state[SDL_SCANCODE_SPACE] && !start && !pJumping && released) || (state[SDL_SCANCODE_UP] && !start && !pJumping && released)){
                     start = true;
                     score = 0;
-                    g_Soloud.play(g_JumpSound);
+                    released = false;
                     pJumping = true;
+                    player.jump(GROUND, interval);
+                    g_Soloud.play(g_JumpSound);
                     g_Soloud.fadeFilterParameter(
                     h, // Sound handle
                     0,            // First filter
@@ -162,6 +164,7 @@ int main(){
                 }
                 else if( (state[SDL_SCANCODE_SPACE] && !pJumping && released) || (state[SDL_SCANCODE_UP] && !pJumping  && released)){
                     //pressed
+                    player.jump(GROUND, interval);
                     g_Soloud.play(g_JumpSound);
                     pJumping = true;
                     start = true;
@@ -171,9 +174,6 @@ int main(){
                     //released
                     released = true;
 
-                }
-                if(pJumping){
-                player.jump(GROUND, interval);
                 }
             }
             
