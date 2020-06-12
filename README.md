@@ -2,6 +2,7 @@
 made in C++ with the following libraries: SDL2, SDL2_Image, SDL2_ttf, soloud(source included)
 
 Build instructions:
+
 link the following libraries:
  - SDL2
  - SDL_image
